@@ -32,7 +32,12 @@ function Dashboard() {
         )}
 
         <p className="text-gray-500 mb-6">Logged in as: {user?.email}</p>
-
+        <button
+  onClick={() => navigate("/upload")}
+  className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition mb-3"
+>
+  Upload Resume
+</button>
         <button
           onClick={handleLogout}
           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"

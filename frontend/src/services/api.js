@@ -7,7 +7,6 @@ const api = axios.create({
   },
 });
 
-// Attach the JWT automatically to every request, if one exists
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -19,5 +18,15 @@ api.interceptors.request.use((config) => {
 export const signup = (data) => api.post("/auth/signup", data);
 export const login = (data) => api.post("/auth/login", data);
 export const getDashboard = () => api.get("/dashboard");
+
+export const uploadResume = (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return api.post("/resume/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+export const getMyResumes = () => api.get("/resume/my-resumes");
 
 export default api;
