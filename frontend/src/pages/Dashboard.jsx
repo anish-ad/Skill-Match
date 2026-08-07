@@ -38,6 +38,12 @@ function Dashboard() {
 >
   Upload Resume
 </button>
+<button
+  onClick={() => navigate("/analyze-job")}
+  className="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition mb-3"
+>
+  Analyze Job Description
+</button>
         <button
           onClick={handleLogout}
           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"

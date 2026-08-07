@@ -29,4 +29,7 @@ export const uploadResume = (file) => {
 
 export const getMyResumes = () => api.get("/resume/my-resumes");
 
+export const analyzeJob = (data) => api.post("/jobs/analyze", data);
+export const getMyJobs = () => api.get("/jobs/my-jobs");
+
 export default api;
