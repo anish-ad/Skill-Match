@@ -5,6 +5,7 @@ import io
 
 from app.core.deps import get_current_user
 from app.core.database import database
+from app.core.skill_extractor import extract_skills
 
 router = APIRouter()
 resumes_collection = database["resumes"]
@@ -15,17 +16,14 @@ async def upload_resume(
     file: UploadFile = File(...),
     current_user: dict = Depends(get_current_user)
 ):
-    # Validate file type — only accept PDFs
     if file.content_type != "application/pdf":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only PDF files are allowed."
         )
 
-    # Read the uploaded file into memory as bytes
     file_bytes = await file.read()
 
-    # Extract text using pypdf
     try:
         reader = PdfReader(io.BytesIO(file_bytes))
         extracted_text = ""
@@ -45,11 +43,14 @@ async def upload_resume(
             detail="No extractable text found in this PDF."
         )
 
-    # Save to MongoDB, linked to the logged-in user
+    # NEW: run the same skill extractor we built in Day 4
+    detected_skills = extract_skills(extracted_text)
+
     resume_doc = {
         "user_id": current_user["id"],
         "filename": file.filename,
         "extracted_text": extracted_text,
+        "detected_skills": detected_skills,
         "uploaded_at": datetime.now(timezone.utc),
     }
 
@@ -59,13 +60,13 @@ async def upload_resume(
         "id": str(result.inserted_id),
         "filename": file.filename,
         "extracted_text": extracted_text,
+        "detected_skills": detected_skills,
         "uploaded_at": resume_doc["uploaded_at"],
     }
 
 
 @router.get("/my-resumes")
 async def get_my_resumes(current_user: dict = Depends(get_current_user)):
-    """Return all resumes uploaded by the currently logged-in user."""
     cursor = resumes_collection.find({"user_id": current_user["id"]})
     resumes = []
     async for doc in cursor:
@@ -73,6 +74,7 @@ async def get_my_resumes(current_user: dict = Depends(get_current_user)):
             "id": str(doc["_id"]),
             "filename": doc["filename"],
             "extracted_text": doc["extracted_text"],
+            "detected_skills": doc.get("detected_skills", []),
             "uploaded_at": doc["uploaded_at"],
         })
     return resumes

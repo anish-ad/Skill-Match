@@ -6,4 +6,5 @@ class ResumeOut(BaseModel):
     id: str
     filename: str
     extracted_text: str
+    detected_skills: list[str]
     uploaded_at: datetime
